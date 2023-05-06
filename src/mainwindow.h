@@ -1,4 +1,5 @@
 #pragma once
+#include "bookmark.h"
 #include <QMainWindow>
 
 
@@ -11,4 +12,7 @@ public:
 
 private slots:
     void on_generate_button_clicked();
+
+private:
+    std::vector<Bookmark> bookmarks;
 };
