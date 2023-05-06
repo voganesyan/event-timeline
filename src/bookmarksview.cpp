@@ -1,17 +1,15 @@
-#include "analogclock.h"
+#include "bookmarksview.h"
 
 #include <QPainter>
 #include <QTime>
 #include <QTimer>
 
-AnalogClock::AnalogClock(QWidget *parent)
+BookmarksView::BookmarksView(QWidget *parent)
     : QWidget(parent)
 {
-    setWindowTitle(tr("Analog Clock"));
-    resize(200, 200);
 }
 
-void AnalogClock::paintEvent(QPaintEvent *)
+void BookmarksView::paintEvent(QPaintEvent *)
 {
     const int win_width = width();
     const int num_hours = 24;

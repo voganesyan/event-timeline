@@ -1,12 +1,12 @@
 #pragma once
 #include <QWidget>
 
-class AnalogClock : public QWidget
+class BookmarksView : public QWidget
 {
     Q_OBJECT
 
 public:
-    AnalogClock(QWidget *parent = nullptr);
+    BookmarksView(QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
