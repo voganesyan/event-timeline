@@ -13,26 +13,24 @@ AnalogClock::AnalogClock(QWidget *parent)
 
 void AnalogClock::paintEvent(QPaintEvent *)
 {
-    QColor hourColor(127, 0, 127);
-    QColor minuteColor(0, 127, 127, 191);
-
-    int side = qMin(width(), height());
+    const int win_width = width();
+    const int num_hours = 24;
+    const int hour_step = win_width / num_hours;
+    const int tick_len = 20;
+    const QColor tick_color(127, 0, 127);
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.translate(width() / 2, height() / 2);
-    painter.scale(side / 200.0, side / 200.0);
+    painter.setPen(tick_color);
 
-    painter.setPen(hourColor);
-    for (int i = 0; i < 12; ++i) {
-        painter.drawLine(88, 0, 96, 0);
-        painter.rotate(30.0);
-    }
+    const QFontMetrics font(painter.font());
+    const int y_offset = font.height() + tick_len;
 
-    painter.setPen(minuteColor);
-    for (int j = 0; j < 60; ++j) {
-        if ((j % 5) != 0)
-            painter.drawLine(92, 0, 96, 0);
-        painter.rotate(6.0);
+    for (int i = 0; i < num_hours; ++i) {
+        const auto label = QString("%1h").arg(i);
+        int x_offset = -font.boundingRect(label).width() / 2;
+        painter.drawText(x_offset, y_offset, label);
+        painter.drawLine(0, 0, 0, tick_len);
+        painter.translate(hour_step, 0);
     }
 }
