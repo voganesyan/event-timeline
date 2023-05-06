@@ -26,5 +26,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::on_generate_button_clicked()
 {
-    qDebug() << "Generate Bookmarks";
+    bool ok;
+    int num = QInputDialog::getInt(
+        this, "Generate Bookmarks", "Number of Bookmarks:", 0, 0, 100000000, 1, &ok);
+    if (ok) {
+        qDebug() << "Generate" << num << "bookmarks";
+    }
 }
