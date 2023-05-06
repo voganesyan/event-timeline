@@ -8,4 +8,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
+private slots:
+    void on_generate_button_clicked();
 };
