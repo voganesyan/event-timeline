@@ -1,11 +1,12 @@
+#include "mainwindow.h"
 #include <QApplication>
 
-#include "analogclock.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    AnalogClock clock;
-    clock.show();
+    MainWindow w;
+    w.resize(700, 200);
+    w.show();
     return app.exec();
 }
