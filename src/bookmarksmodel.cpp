@@ -16,19 +16,25 @@ BookmarksModel::BookmarksModel(QObject *parent)
 
 void BookmarksModel::generate_bookmarks(int amount)
 {
-    bookmarks.reserve(amount);
-    bookmarks.clear();
+    m_bookmarks.reserve(amount);
+    m_bookmarks.clear();
     for (int i = 0; i < amount; i++) {
         auto name = QString("Bookmark %1").arg(i);
         int timestamp = std::rand() % BOOKMARK_MAX_TIMESTAMP;
         int duration = std::rand() % BOOKMARK_MAX_DURATION;
-        bookmarks.emplace_back(name, timestamp, duration);
+        m_bookmarks.emplace_back(name, timestamp, duration);
     }
     std::ranges::sort(
-        bookmarks,
+        m_bookmarks,
         [] (const Bookmark &a, const Bookmark &b) {
             return a.timestamp < b.timestamp;
         }
     );
     emit bookmarks_generated();
+}
+
+
+const std::vector<Bookmark>& BookmarksModel::bookmarks() const
+{
+    return m_bookmarks;
 }

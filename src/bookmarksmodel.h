@@ -11,9 +11,11 @@ public:
 
     void generate_bookmarks(int amount);
 
+    const std::vector<Bookmark>& bookmarks() const;
+
 signals:
     void bookmarks_generated();
 
 private:
-    std::vector<Bookmark> bookmarks;
+    std::vector<Bookmark> m_bookmarks;
 };
