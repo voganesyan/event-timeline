@@ -7,7 +7,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    bookmarks_model = new BookmarksModel();
+    bookmarks_model = new BookmarksModel(this);
     bookmarks_view = new BookmarksView();
     auto generate_button = new QPushButton("Generate Bookmarks");
     connect(generate_button, &QPushButton::clicked, this, &MainWindow::on_generate_button_clicked);
