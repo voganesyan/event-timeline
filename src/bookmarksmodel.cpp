@@ -50,11 +50,5 @@ void BookmarksModel::generate_bookmarks(int amount)
     qDebug() << "A" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     qDebug() << "B" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
 
-    emit bookmarks_generated();
-}
-
-
-const std::vector<Bookmark>& BookmarksModel::bookmarks() const
-{
-    return m_bookmarks;
+    emit bookmarks_changed(m_bookmarks);
 }

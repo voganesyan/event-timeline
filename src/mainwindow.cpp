@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     bookmarks_view = new BookmarksView();
     auto generate_button = new QPushButton("Generate Bookmarks");
     connect(generate_button, &QPushButton::clicked, this, &MainWindow::on_generate_button_clicked);
-    connect(bookmarks_model, &BookmarksModel::bookmarks_generated, [] () { qDebug() << "bookmarks generated"; } );
+    connect(bookmarks_model, &BookmarksModel::bookmarks_changed, bookmarks_view, &BookmarksView::group_bookmarks);
     connect(bookmarks_view, &BookmarksView::resized, [] () { qDebug() << "view resized"; } );
 
     auto button_layout = new QHBoxLayout();
@@ -33,12 +33,7 @@ void MainWindow::on_generate_button_clicked()
     bool ok;
     int num = QInputDialog::getInt(
         this, "Generate Bookmarks", "Number of Bookmarks:", 50000000, 0, 100000000, 1, &ok);
-    if (!ok) {
-        return;
+    if (ok) {
+        bookmarks_model->generate_bookmarks(num);
     }
-
-    qDebug() << "Generate" << num << "bookmarks";
-    bookmarks_model->generate_bookmarks(num);
-    bookmarks_view->update_bookmark_groups(bookmarks_model->bookmarks());
-    bookmarks_view->update();
 }

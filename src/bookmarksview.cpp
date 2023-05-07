@@ -57,7 +57,7 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 }
 
 
-void BookmarksView::update_bookmark_groups(const std::vector<Bookmark> &bookmarks)
+void BookmarksView::group_bookmarks(const std::vector<Bookmark> &bookmarks)
 {
     m_groups.clear();
 

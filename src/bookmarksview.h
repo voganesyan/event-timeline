@@ -10,7 +10,8 @@ class BookmarksView : public QWidget
 public:
     BookmarksView(QWidget *parent = nullptr);
 
-    void update_bookmark_groups(const std::vector<Bookmark> &bookmarks);
+public slots:
+    void group_bookmarks(const std::vector<Bookmark> &bookmarks);
 
 signals:
     void resized();
