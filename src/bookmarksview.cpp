@@ -2,11 +2,12 @@
 #include <QPainter>
 
 
-BookmarksView::BookmarksView(QWidget *parent)
-    : QWidget(parent)
+BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
+    : m_model(model), QWidget(parent)
 {
     m_resize_timer.setSingleShot(true);
-    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::resized);
+    connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::group_bookmarks);
+    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::group_bookmarks);
 }
 
 
@@ -57,10 +58,11 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 }
 
 
-void BookmarksView::group_bookmarks(const std::vector<Bookmark> &bookmarks)
+void BookmarksView::group_bookmarks()
 {
     m_groups.clear();
 
+    const auto &bookmarks = m_model->bookmarks();
     if (bookmarks.empty()) {
         return;
     }
@@ -77,6 +79,8 @@ void BookmarksView::group_bookmarks(const std::vector<Bookmark> &bookmarks)
             key_timestamp = bookmark.timestamp;
         }
     }
+
+    update();
 }
 
 
