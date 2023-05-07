@@ -1,8 +1,6 @@
 #include "bookmarksview.h"
-
 #include <QPainter>
-#include <QTime>
-#include <QTimer>
+
 
 BookmarksView::BookmarksView(QWidget *parent)
     : QWidget(parent)
@@ -45,7 +43,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
             ? QString::number(num_bookmarks)
             : group.front()->name;
 
-        QRect rect(start, y_offset, end - start, tick_len);
+        QRect rect(start, y_offset + 10, end - start, tick_len);
         painter.drawRoundedRect(rect, 1, 1);
         painter.drawText(rect, label);
     }
