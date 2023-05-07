@@ -32,7 +32,7 @@ void MainWindow::on_generate_button_clicked()
 {
     bool ok;
     int num = QInputDialog::getInt(
-        this, "Generate Bookmarks", "Number of Bookmarks:", 50, 0, 100000000, 1, &ok);
+        this, "Generate Bookmarks", "Number of Bookmarks:", 50000000, 0, 100000000, 1, &ok);
     if (!ok) {
         return;
     }

@@ -41,7 +41,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
         auto num_bookmarks = group.size();
         const auto label = num_bookmarks > 1
             ? QString::number(num_bookmarks)
-            : group.front()->name;
+            : QString::fromStdString(group.front()->name);
 
         QRect rect(start, y_offset + 10, end - start, tick_len);
         painter.drawRoundedRect(rect, 1, 1);
