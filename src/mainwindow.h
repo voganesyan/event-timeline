@@ -2,6 +2,7 @@
 #include <QMainWindow>
 
 class BookmarksModel;
+class BookmarksView;
 
 class MainWindow : public QMainWindow
 {
@@ -15,4 +16,5 @@ private slots:
 
 private:
     BookmarksModel *bookmarks_model;
+    BookmarksView *bookmarks_view;
 };
