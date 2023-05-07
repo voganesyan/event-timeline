@@ -9,6 +9,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 qt_add_executable(event-timeline
     bookmark.h
+    bookmarksmodel.cpp bookmarksmodel.h
     bookmarksview.cpp bookmarksview.h
     mainwindow.cpp mainwindow.h
     main.cpp
