@@ -16,8 +16,8 @@ BookmarksModel::BookmarksModel(QObject *parent)
 
 void BookmarksModel::generate_bookmarks(int amount)
 {
-    m_bookmarks.reserve(amount);
     m_bookmarks.clear();
+    m_bookmarks.reserve(amount);
     for (int i = 0; i < amount; i++) {
         auto name = QString("Bookmark %1").arg(i);
         int timestamp = std::rand() % BOOKMARK_MAX_TIMESTAMP;
