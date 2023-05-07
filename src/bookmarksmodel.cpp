@@ -32,9 +32,9 @@ void BookmarksModel::generate_bookmarks(int amount)
 
     for (int i = 0; i < amount; i++) {
         auto name = QString("Bookmark %1").arg(i);
-        m_bookmarks.emplace_back(name, timestamp, duration);
         long timestamp = rand(BOOKMARK_MAX_TIMESTAMP);
         long duration = rand(BOOKMARK_MAX_DURATION);
+        m_bookmarks.emplace_back(name, timestamp, duration);
     }
 
     auto t2 = std::chrono::steady_clock::now();
