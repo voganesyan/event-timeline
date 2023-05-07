@@ -68,15 +68,15 @@ void BookmarksView::update_bookmark_groups(const std::vector<Bookmark> &bookmark
     }
 
     m_groups.push_back({&bookmarks[0]});
-    int key_timestamp = milliseconds_to_pixels(bookmarks[0].timestamp);
+    auto key_timestamp = bookmarks[0].timestamp;
+    const auto max_dist = pixels_to_milliseconds(100);
     for (size_t i = 1; i < bookmarks.size(); i++) {
         const auto &bookmark = bookmarks[i];
-        int timestamp = milliseconds_to_pixels(bookmark.timestamp);
-        if (timestamp - key_timestamp < 100) {
+        if (bookmark.timestamp - key_timestamp < max_dist) {
             m_groups.back().push_back(&bookmark);
         } else {
             m_groups.push_back({&bookmark});
-            key_timestamp = timestamp;
+            key_timestamp = bookmark.timestamp;
         }
     }
 }
@@ -86,7 +86,13 @@ int BookmarksView::milliseconds_to_pixels(long ms) const
 {
     using namespace std::chrono_literals;
     long max_timestamp = std::chrono::milliseconds(24h).count();
-    int win_width = width();
-    auto pixels = ms * win_width / max_timestamp;
-    return static_cast<int>(pixels);
+    return static_cast<int>(ms * width() / max_timestamp);
+}
+
+
+long BookmarksView::pixels_to_milliseconds(int px) const
+{
+    using namespace std::chrono_literals;
+    long max_timestamp = std::chrono::milliseconds(24h).count();
+    return px * max_timestamp / width();
 }

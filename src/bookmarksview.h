@@ -20,7 +20,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
     int milliseconds_to_pixels(long ms) const;
-
+    long pixels_to_milliseconds(int px) const;
 private:
     using BookmarkGroup = std::vector<const Bookmark *>;
     std::vector<BookmarkGroup> m_groups;
