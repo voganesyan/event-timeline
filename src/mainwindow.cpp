@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto generate_button = new QPushButton("Generate Bookmarks");
     connect(generate_button, &QPushButton::clicked, this, &MainWindow::on_generate_button_clicked);
     connect(bookmarks_model, &BookmarksModel::bookmarks_generated, [] () { qDebug() << "bookmarks generated"; } );
+    connect(bookmarks_view, &BookmarksView::resized, [] () { qDebug() << "view resized"; } );
 
     auto button_layout = new QHBoxLayout();
     button_layout->addStretch();

@@ -7,7 +7,10 @@
 BookmarksView::BookmarksView(QWidget *parent)
     : QWidget(parent)
 {
+    m_resize_timer.setSingleShot(true);
+    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::resized);
 }
+
 
 void BookmarksView::paintEvent(QPaintEvent *)
 {
@@ -46,6 +49,13 @@ void BookmarksView::paintEvent(QPaintEvent *)
         painter.drawRoundedRect(rect, 1, 1);
         painter.drawText(rect, label);
     }
+}
+
+
+void BookmarksView::resizeEvent(QResizeEvent *event)
+{
+    m_resize_timer.start(500);
+    QWidget::resizeEvent(event);
 }
 
 
