@@ -1,6 +1,7 @@
 #include "bookmarksview.h"
 #include <QPainter>
 #include <QToolTip>
+#include <QtConcurrent>
 #include <QDebug>
 
 static constexpr int TOOLTIP_MAX_ROWS = 15;
@@ -115,6 +116,8 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 
 static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks, int max_dist)
 {
+    auto t1 = std::chrono::steady_clock::now();
+
     QVector<BookmarksGroup> groups;
     auto begin = bookmarks.cbegin();
     auto end_time = begin->end_time();
@@ -128,6 +131,10 @@ static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks,
         }
     }
     groups.emplace_back(begin, bookmarks.cend(), end_time);
+
+    auto t2 = std::chrono::steady_clock::now();
+    qDebug() << "G" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
     return groups;
 }
 
@@ -140,17 +147,17 @@ void BookmarksView::regroup_bookmarks()
     if (bookmarks.empty()) {
         return;
     }
-
-    auto t1 = std::chrono::steady_clock::now();
-
     const auto max_dist = pixels_to_milliseconds(100);
-    auto groups = group_bookmarks(bookmarks, max_dist);
-    m_groups = std::move(groups);
+    connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
+            this, &BookmarksView::update_groups);
+    auto future = QtConcurrent::run(group_bookmarks, std::ref(bookmarks), max_dist);
+    m_watcher.setFuture(future);
+}
 
-    auto t2 = std::chrono::steady_clock::now();
 
-    qDebug() << "G" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-
+void BookmarksView::update_groups()
+{
+    m_groups = std::move(m_watcher.result());
     update();
 }
 

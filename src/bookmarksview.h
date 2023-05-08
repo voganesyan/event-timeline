@@ -34,9 +34,12 @@ protected:
     long pixels_to_milliseconds(int px) const;
 
 private:
+    void update_groups();
+
     const BookmarksModel *m_model;
     QVector<BookmarksGroup> m_groups;
     QTimer m_resize_timer;
+    QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
 
     int m_group_rect_y = 0;
     int m_group_rect_height = 0;
