@@ -56,12 +56,12 @@ void BookmarksView::paintEvent(QPaintEvent *)
 
         auto start_px = milliseconds_to_pixels(start->timestamp);
         auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
-        auto num_bookmarks = std::distance(start, end) + 1;
-        auto label = num_bookmarks > 1
-            ? QString::number(num_bookmarks)
+        auto num_bms = std::distance(start, end) + 1;
+        auto label = num_bms > 1
+            ? QString::number(num_bms)
             : QString::fromStdString(start->name);
         const QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
-        const auto &color = num_bookmarks > 1 ? group_color : bookmark_color;
+        const auto &color = num_bms > 1 ? group_color : bookmark_color;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
         painter.drawRoundedRect(rect, 4, 4);
