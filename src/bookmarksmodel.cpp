@@ -57,16 +57,16 @@ BookmarksModel::BookmarksModel(QObject *parent)
 
 void BookmarksModel::regenerate_bookmarks(int amount)
 {
-    connect(&watcher, &QFutureWatcher<BookmarksVector>::finished,
+    connect(&m_watcher, &QFutureWatcher<BookmarksVector>::finished,
             this, &BookmarksModel::update_bookmarks);
     auto future = QtConcurrent::run(generate_bookmarks, amount);
-    watcher.setFuture(future);
+    m_watcher.setFuture(future);
 }
 
 
 void BookmarksModel::update_bookmarks()
 {
-    m_bookmarks = std::move(watcher.result());
+    m_bookmarks = std::move(m_watcher.result());
     emit bookmarks_changed();
 }
 

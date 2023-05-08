@@ -24,5 +24,5 @@ private:
 
     BookmarksVector m_bookmarks;
 
-    QFutureWatcher<BookmarksVector> watcher;
+    QFutureWatcher<BookmarksVector> m_watcher;
 };
