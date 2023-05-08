@@ -23,7 +23,9 @@ void BookmarksView::paintEvent(QPaintEvent *)
     const int num_hours = 24;
     const int hour_step = win_width / num_hours;
     const int tick_len = 20;
-    const QColor tick_color(127, 0, 127);
+    static constexpr QColor tick_color(127, 0, 127);
+    static constexpr QColor group_color(0, 200, 0);
+    static constexpr QColor bookmark_color(0, 0, 200);
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -58,8 +60,14 @@ void BookmarksView::paintEvent(QPaintEvent *)
         auto label = num_bookmarks > 1
             ? QString::number(num_bookmarks)
             : QString::fromStdString(start->name);
-        QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
+        const QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
+        const auto &color = num_bookmarks > 1 ? group_color : bookmark_color;
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(color);
         painter.drawRoundedRect(rect, 4, 4);
+        painter.setPen(color.darker());
+        painter.drawRoundedRect(rect, 4, 4);
+        painter.setPen(Qt::white);
         painter.drawText(rect, label);
     }
 }
