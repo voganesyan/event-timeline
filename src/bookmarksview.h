@@ -10,7 +10,7 @@ class BookmarksView : public QWidget
     Q_OBJECT
 
 public:
-    BookmarksView(const BookmarksModel *model, QWidget *parent = nullptr);
+    explicit BookmarksView(const BookmarksModel *model, QWidget *parent = nullptr);
 
 public slots:
     void group_bookmarks();
