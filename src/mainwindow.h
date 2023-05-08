@@ -15,6 +15,5 @@ private slots:
     void on_generate_button_clicked();
 
 private:
-    BookmarksModel *bookmarks_model;
-    BookmarksView *bookmarks_view;
+    BookmarksModel *m_model;
 };
