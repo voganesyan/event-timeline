@@ -3,6 +3,8 @@
 #include <QToolTip>
 #include <QDebug>
 
+static constexpr int TOOLTIP_MAX_ROWS = 15;
+
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     : m_model(model), QWidget(parent)
@@ -82,16 +84,21 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
         auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
 
         if (pt.x() >= start_px && pt.x() < end_px) {
-            std::string text;
-            for (auto bm = start; bm != end; ++bm) {
-                text += bm->name;
-                text += '\n';
+            std::string tooltip;
+            int num_bms = std::distance(start, end) + 1;
+            const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
+                ? (start + TOOLTIP_MAX_ROWS) : end;
+            for (auto bm = start; bm != last_to_display; ++bm) {
+                tooltip += bm->name + '\n';
             }
-            text += end->name;
+            const auto last_line = (num_bms > TOOLTIP_MAX_ROWS)
+                ? QString("+ %1 other bookmarks").arg(num_bms - TOOLTIP_MAX_ROWS)
+                : QString::fromStdString(end->name);
+            QString qtooltip = QString::fromStdString(tooltip) + last_line;
 
             QToolTip::showText(
                 event->globalPosition().toPoint(),
-                QString::fromStdString(text), this, rect());
+                qtooltip, this, rect());
             break;
         }
     }
