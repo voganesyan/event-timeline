@@ -1,5 +1,6 @@
 #include "bookmarksview.h"
 #include <QPainter>
+#include <QToolTip>
 #include <QDebug>
 
 
@@ -9,6 +10,8 @@ BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     m_resize_timer.setSingleShot(true);
     connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::group_bookmarks);
     connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::group_bookmarks);
+
+    setMouseTracking(true);
 }
 
 
@@ -27,6 +30,8 @@ void BookmarksView::paintEvent(QPaintEvent *)
     painter.save();
     const QFontMetrics font(painter.font());
     const int y_offset = font.height() + tick_len;
+    m_group_rect_y = y_offset + 10;
+    m_group_rect_height = tick_len;
 
     for (int i = 0; i < num_hours; ++i) {
         const auto label = QString("%1h").arg(i);
@@ -47,14 +52,50 @@ void BookmarksView::paintEvent(QPaintEvent *)
 
         auto start_px = milliseconds_to_pixels(start->timestamp);
         auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
-        auto num_bookmarks = std::distance(start, end);
+        auto num_bookmarks = std::distance(start, end) + 1;
         auto label = num_bookmarks > 1
             ? QString::number(num_bookmarks)
             : QString::fromStdString(start->name);
-        QRect rect(start_px, y_offset + 10, end_px - start_px, tick_len);
-        painter.drawRoundedRect(rect, 1, 1);
+        QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
+        painter.drawRoundedRect(rect, 4, 4);
         painter.drawText(rect, label);
     }
+}
+
+
+void BookmarksView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_groups.empty()) {
+        return;
+    }
+
+    const auto pt = event->pos();
+    if (pt.y() < m_group_rect_y || pt.y() >= m_group_rect_y + m_group_rect_height) {
+        return;
+    }
+
+    for (auto it = ++m_groups.cbegin(); it != m_groups.cend(); ++it) {
+        const auto start = *(it - 1);
+        const auto end = (*it - 1);
+
+        auto start_px = milliseconds_to_pixels(start->timestamp);
+        auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
+
+        if (pt.x() >= start_px && pt.x() < end_px) {
+            std::string text;
+            for (auto bm = start; bm != end; ++bm) {
+                text += bm->name;
+                text += '\n';
+            }
+            text += end->name;
+
+            QToolTip::showText(
+                event->globalPosition().toPoint(),
+                QString::fromStdString(text), this, rect());
+            break;
+        }
+    }
+    QWidget::mouseMoveEvent(event);
 }
 
 

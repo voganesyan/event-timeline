@@ -2,6 +2,8 @@
 #include "bookmarksmodel.h"
 #include <QWidget>
 #include <QTimer>
+#include <QMouseEvent>
+
 
 class BookmarksView : public QWidget
 {
@@ -16,6 +18,7 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     int milliseconds_to_pixels(long ms) const;
     long pixels_to_milliseconds(int px) const;
@@ -29,4 +32,7 @@ private:
     std::vector<GroupFirstBookmark> m_groups;
 
     QTimer m_resize_timer;
+
+    int m_group_rect_y = 0;
+    int m_group_rect_height = 0;
 };
