@@ -84,7 +84,7 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    for (auto it = ++m_groups.cbegin(); it != m_groups.cend(); ++it) {
+    for (auto it = --m_groups.cend(); it != m_groups.cbegin(); --it) {
         const auto start = *(it - 1);
         const auto end = (*it - 1);
 
