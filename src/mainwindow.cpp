@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     m_model = new BookmarksModel(this);
-    auto m_view = new BookmarksView(m_model);
+    auto view = new BookmarksView(m_model);
     auto generate_button = new QPushButton("Generate Bookmarks");
     connect(generate_button, &QPushButton::clicked, this, &MainWindow::on_generate_button_clicked);
 
@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     button_layout->addWidget(generate_button);
 
     auto main_layout = new QVBoxLayout();
-    main_layout->addWidget(m_view);
+    main_layout->addWidget(view);
     main_layout->addLayout(button_layout);
 
     auto main_widget = new QWidget();
