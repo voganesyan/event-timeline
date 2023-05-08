@@ -3,7 +3,7 @@
 #include <QFutureWatcher>
 #include <QObject>
 
-using BookmarksVector = std::vector<Bookmark>;
+using BookmarksVector = QVector<Bookmark>;
 
 class BookmarksModel: public QObject
 {
