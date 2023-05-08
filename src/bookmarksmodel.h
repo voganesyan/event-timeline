@@ -1,5 +1,6 @@
 #pragma once
 #include "bookmark.h"
+#include <QFutureWatcher>
 #include <QObject>
 
 class BookmarksModel: public QObject
@@ -9,7 +10,7 @@ class BookmarksModel: public QObject
 public:
     explicit BookmarksModel(QObject *parent = nullptr);
 
-    void generate_bookmarks(int amount);
+    void regenerate_bookmarks(int amount);
 
     const std::vector<Bookmark>& bookmarks() const;
 
@@ -17,5 +18,9 @@ signals:
     void bookmarks_changed();
 
 private:
+    void update_bookmarks();
+
     std::vector<Bookmark> m_bookmarks;
+
+    QFutureWatcher<std::vector<Bookmark>> watcher;
 };
