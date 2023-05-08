@@ -3,6 +3,8 @@
 #include <QFutureWatcher>
 #include <QObject>
 
+using BookmarksVector = std::vector<Bookmark>;
+
 class BookmarksModel: public QObject
 {
     Q_OBJECT
@@ -12,7 +14,7 @@ public:
 
     void regenerate_bookmarks(int amount);
 
-    const std::vector<Bookmark>& bookmarks() const;
+    const BookmarksVector& bookmarks() const;
 
 signals:
     void bookmarks_changed();
@@ -20,7 +22,7 @@ signals:
 private:
     void update_bookmarks();
 
-    std::vector<Bookmark> m_bookmarks;
+    BookmarksVector m_bookmarks;
 
-    QFutureWatcher<std::vector<Bookmark>> watcher;
+    QFutureWatcher<BookmarksVector> watcher;
 };

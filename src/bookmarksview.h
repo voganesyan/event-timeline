@@ -30,7 +30,7 @@ private:
     // A bookmarks group is a subrange(span) of the original container
     struct BookmarksGroup: public std::span<const Bookmark>
     {
-        using BookmarkIt = std::vector<Bookmark>::const_iterator;
+        using BookmarkIt = BookmarksVector::const_iterator;
         explicit BookmarksGroup(BookmarkIt begin, BookmarkIt end, long end_time)
             : std::span<const Bookmark>(begin, end), end_time(end_time) {};
         long end_time; // group's end time in milliseconds.

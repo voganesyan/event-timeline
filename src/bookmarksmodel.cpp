@@ -18,9 +18,9 @@ static long rand(long max)
 }
 
 
-static std::vector<Bookmark> generate_bookmarks(int amount)
+static BookmarksVector generate_bookmarks(int amount)
 {
-    std::vector<Bookmark> bookmarks;
+    BookmarksVector bookmarks;
     bookmarks.reserve(amount);
 
     auto t1 = std::chrono::steady_clock::now();
@@ -57,7 +57,7 @@ BookmarksModel::BookmarksModel(QObject *parent)
 
 void BookmarksModel::regenerate_bookmarks(int amount)
 {
-    connect(&watcher, &QFutureWatcher<std::vector<Bookmark>>::finished,
+    connect(&watcher, &QFutureWatcher<BookmarksVector>::finished,
             this, &BookmarksModel::update_bookmarks);
     auto future = QtConcurrent::run(generate_bookmarks, amount);
     watcher.setFuture(future);
@@ -71,7 +71,7 @@ void BookmarksModel::update_bookmarks()
 }
 
 
-const std::vector<Bookmark>& BookmarksModel::bookmarks() const
+const BookmarksVector& BookmarksModel::bookmarks() const
 {
     return m_bookmarks;
 }
