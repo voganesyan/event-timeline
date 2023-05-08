@@ -52,13 +52,13 @@ static BookmarksVector generate_bookmarks(int amount)
 BookmarksModel::BookmarksModel(QObject *parent)
     : QObject(parent)
 {
+    connect(&m_watcher, &QFutureWatcher<BookmarksVector>::finished,
+            this, &BookmarksModel::update_bookmarks);
 }
 
 
 void BookmarksModel::regenerate_bookmarks(int amount)
 {
-    connect(&m_watcher, &QFutureWatcher<BookmarksVector>::finished,
-            this, &BookmarksModel::update_bookmarks);
     auto future = QtConcurrent::run(generate_bookmarks, amount);
     m_watcher.setFuture(future);
 }

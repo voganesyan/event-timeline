@@ -13,7 +13,8 @@ BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     m_resize_timer.setSingleShot(true);
     connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::regroup_bookmarks);
     connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::regroup_bookmarks);
-
+    connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
+            this, &BookmarksView::update_groups);
     setMouseTracking(true);
 }
 
@@ -148,8 +149,6 @@ void BookmarksView::regroup_bookmarks()
         return;
     }
     const auto max_dist = pixels_to_milliseconds(100);
-    connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
-            this, &BookmarksView::update_groups);
     auto future = QtConcurrent::run(group_bookmarks, std::ref(bookmarks), max_dist);
     m_watcher.setFuture(future);
 }
