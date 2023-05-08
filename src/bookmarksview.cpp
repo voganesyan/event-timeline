@@ -23,9 +23,9 @@ void BookmarksView::paintEvent(QPaintEvent *)
     const int num_hours = 24;
     const int hour_step = win_width / num_hours;
     const int tick_len = 20;
-    static constexpr QColor tick_color(127, 0, 127);
-    static constexpr QColor group_color(0, 200, 0);
-    static constexpr QColor bookmark_color(0, 0, 200);
+    static constexpr QColor tick_color(120, 0, 120);
+    static constexpr QColor group_color(0, 200, 0, 100);
+    static constexpr QColor bookmark_color(0, 0, 200, 100);
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
