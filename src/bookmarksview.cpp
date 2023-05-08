@@ -86,7 +86,7 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 
     for (auto it = --m_groups.cend(); it != m_groups.cbegin(); --it) {
         const auto start = *(it - 1);
-        const auto end = (*it - 1);
+        const auto end = *it - 1;
 
         auto start_px = milliseconds_to_pixels(start->timestamp);
         auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
