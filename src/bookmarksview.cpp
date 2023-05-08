@@ -10,8 +10,8 @@ BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     : m_model(model), QWidget(parent)
 {
     m_resize_timer.setSingleShot(true);
-    connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::group_bookmarks);
-    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::group_bookmarks);
+    connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::regroup_bookmarks);
+    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::regroup_bookmarks);
 
     setMouseTracking(true);
 }
@@ -113,7 +113,26 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 }
 
 
-void BookmarksView::group_bookmarks()
+static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks, int max_dist)
+{
+    QVector<BookmarksGroup> groups;
+    auto begin = bookmarks.cbegin();
+    auto end_time = begin->end_time();
+    for (auto it = begin + 1; it != bookmarks.cend(); ++it) {
+        if (it->timestamp - begin->timestamp > max_dist) {
+            groups.emplace_back(begin, it, end_time);
+            begin = it;
+            end_time = it->end_time();
+        } else {
+            end_time = std::max(it->end_time(), end_time);
+        }
+    }
+    groups.emplace_back(begin, bookmarks.cend(), end_time);
+    return groups;
+}
+
+
+void BookmarksView::regroup_bookmarks()
 {
     m_groups.clear();
 
@@ -125,18 +144,8 @@ void BookmarksView::group_bookmarks()
     auto t1 = std::chrono::steady_clock::now();
 
     const auto max_dist = pixels_to_milliseconds(100);
-    auto begin = bookmarks.cbegin();
-    auto end_time = begin->end_time();
-    for (auto it = begin + 1; it != bookmarks.cend(); ++it) {
-        if (it->timestamp - begin->timestamp > max_dist) {
-            m_groups.emplace_back(begin, it, end_time);
-            begin = it;
-            end_time = it->end_time();
-        } else {
-            end_time = std::max(it->end_time(), end_time);
-        }
-    }
-    m_groups.emplace_back(begin, bookmarks.cend(), end_time);
+    auto groups = group_bookmarks(bookmarks, max_dist);
+    m_groups = std::move(groups);
 
     auto t2 = std::chrono::steady_clock::now();
 
