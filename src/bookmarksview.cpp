@@ -1,5 +1,6 @@
 #include "bookmarksview.h"
 #include <QPainter>
+#include <QDebug>
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
@@ -36,15 +37,21 @@ void BookmarksView::paintEvent(QPaintEvent *)
     }
     painter.restore();
 
-    for (const auto &group : m_groups) {
-        auto start = milliseconds_to_pixels(group.front()->timestamp);
-        auto end = milliseconds_to_pixels(group.back()->timestamp + group.back()->duration);
-        auto num_bookmarks = group.size();
-        const auto label = num_bookmarks > 1
-            ? QString::number(num_bookmarks)
-            : QString::fromStdString(group.front()->name);
+    if (m_groups.empty()) {
+        return;
+    }
 
-        QRect rect(start, y_offset + 10, end - start, tick_len);
+    for (auto it = ++m_groups.cbegin(); it != m_groups.cend(); ++it) {
+        const auto start = *(it - 1);
+        const auto end = (*it - 1);
+
+        auto start_px = milliseconds_to_pixels(start->timestamp);
+        auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
+        auto num_bookmarks = std::distance(start, end);
+        auto label = num_bookmarks > 1
+            ? QString::number(num_bookmarks)
+            : QString::fromStdString(start->name);
+        QRect rect(start_px, y_offset + 10, end_px - start_px, tick_len);
         painter.drawRoundedRect(rect, 1, 1);
         painter.drawText(rect, label);
     }
@@ -67,18 +74,20 @@ void BookmarksView::group_bookmarks()
         return;
     }
 
-    m_groups.push_back({&bookmarks[0]});
-    auto key_timestamp = bookmarks[0].timestamp;
+    auto t1 = std::chrono::steady_clock::now();
+
     const auto max_dist = pixels_to_milliseconds(100);
-    for (size_t i = 1; i < bookmarks.size(); i++) {
-        const auto &bookmark = bookmarks[i];
-        if (bookmark.timestamp - key_timestamp < max_dist) {
-            m_groups.back().push_back(&bookmark);
-        } else {
-            m_groups.push_back({&bookmark});
-            key_timestamp = bookmark.timestamp;
+    m_groups.push_back(bookmarks.cbegin());
+    for (auto it = ++bookmarks.cbegin(); it != bookmarks.cend(); ++it) {
+        if (it->timestamp - m_groups.back()->timestamp > max_dist) {
+            m_groups.push_back(it);
         }
     }
+    m_groups.push_back(bookmarks.cend());
+
+    auto t2 = std::chrono::steady_clock::now();
+
+    qDebug() << "G" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
     update();
 }

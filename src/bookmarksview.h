@@ -23,7 +23,10 @@ protected:
 private:
     const BookmarksModel *m_model;
 
-    using BookmarkGroup = std::vector<const Bookmark *>;
-    std::vector<BookmarkGroup> m_groups;
+    // A bookmark group is represented as an iterator (of the original container)
+    // pointing to the first element of the group.
+    using GroupFirstBookmark = std::vector<Bookmark>::const_iterator;
+    std::vector<GroupFirstBookmark> m_groups;
+
     QTimer m_resize_timer;
 };
