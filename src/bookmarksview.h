@@ -35,7 +35,7 @@ private:
             : std::span<const Bookmark>(begin, end), end_time(end_time) {};
         long end_time; // group's end time in milliseconds.
     };
-    std::vector<BookmarksGroup> m_groups;
+    QVector<BookmarksGroup> m_groups;
 
     QTimer m_resize_timer;
 
