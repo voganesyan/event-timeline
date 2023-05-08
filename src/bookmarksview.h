@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QMouseEvent>
+#include <span>
 
 
 class BookmarksView : public QWidget
@@ -26,10 +27,15 @@ protected:
 private:
     const BookmarksModel *m_model;
 
-    // A bookmark group is represented as an iterator (of the original container)
-    // pointing to the first element of the group.
-    using GroupFirstBookmark = std::vector<Bookmark>::const_iterator;
-    std::vector<GroupFirstBookmark> m_groups;
+    // A bookmarks group is a subrange(span) of the original container
+    struct BookmarksGroup: public std::span<const Bookmark>
+    {
+        using BookmarkIt = std::vector<Bookmark>::const_iterator;
+        explicit BookmarksGroup(BookmarkIt begin, BookmarkIt end, long end_time)
+            : std::span<const Bookmark>(begin, end), end_time(end_time) {};
+        long end_time; // group's end time in milliseconds.
+    };
+    std::vector<BookmarksGroup> m_groups;
 
     QTimer m_resize_timer;
 

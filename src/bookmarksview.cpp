@@ -50,16 +50,13 @@ void BookmarksView::paintEvent(QPaintEvent *)
         return;
     }
 
-    for (auto it = ++m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        const auto start = *(it - 1);
-        const auto end = *it - 1;
-
-        auto start_px = milliseconds_to_pixels(start->timestamp);
-        auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
-        auto num_bms = std::distance(start, end) + 1;
+    for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
+        auto start_px = milliseconds_to_pixels(it->begin()->timestamp);
+        auto end_px = milliseconds_to_pixels(it->end_time);
+        auto num_bms = it->size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
-            : QString::fromStdString(start->name);
+            : QString::fromStdString(it->begin()->name);
         const QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
         const auto &color = num_bms > 1 ? group_color : bookmark_color;
         painter.setPen(Qt::NoPen);
@@ -84,29 +81,24 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    for (auto it = --m_groups.cend(); it != m_groups.cbegin(); --it) {
-        const auto start = *(it - 1);
-        const auto end = *it - 1;
-
-        auto start_px = milliseconds_to_pixels(start->timestamp);
-        auto end_px = milliseconds_to_pixels(end->timestamp + end->duration);
+    for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
+        auto start_px = milliseconds_to_pixels(it->begin()->timestamp);
+        auto end_px = milliseconds_to_pixels(it->end_time);
 
         if (pt.x() >= start_px && pt.x() < end_px) {
-            std::string tooltip;
-            int num_bms = std::distance(start, end) + 1;
+            QString tooltip;
+            int num_bms = it->size();
             const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
-                ? (start + TOOLTIP_MAX_ROWS) : end;
-            for (auto bm = start; bm != last_to_display; ++bm) {
-                tooltip += bm->name + '\n';
+                ? (it->begin() + TOOLTIP_MAX_ROWS) : --it->end();
+            for (auto bm = it->begin(); bm != last_to_display; ++bm) {
+                tooltip += QString::fromStdString(bm->name) + '\n';
             }
-            const auto last_line = (num_bms > TOOLTIP_MAX_ROWS)
+            tooltip += num_bms > TOOLTIP_MAX_ROWS
                 ? QString("+ %1 other bookmarks").arg(num_bms - TOOLTIP_MAX_ROWS)
-                : QString::fromStdString(end->name);
-            QString qtooltip = QString::fromStdString(tooltip) + last_line;
-
+                : QString::fromStdString(last_to_display->name);
             QToolTip::showText(
                 event->globalPosition().toPoint(),
-                qtooltip, this, rect());
+                tooltip, this, rect());
             break;
         }
     }
@@ -133,13 +125,18 @@ void BookmarksView::group_bookmarks()
     auto t1 = std::chrono::steady_clock::now();
 
     const auto max_dist = pixels_to_milliseconds(100);
-    m_groups.push_back(bookmarks.cbegin());
-    for (auto it = ++bookmarks.cbegin(); it != bookmarks.cend(); ++it) {
-        if (it->timestamp - m_groups.back()->timestamp > max_dist) {
-            m_groups.push_back(it);
+    auto begin = bookmarks.cbegin();
+    auto end_time = begin->end_time();
+    for (auto it = begin + 1; it != bookmarks.cend(); ++it) {
+        if (it->timestamp - begin->timestamp > max_dist) {
+            m_groups.emplace_back(begin, it, end_time);
+            begin = it;
+            end_time = it->end_time();
+        } else {
+            end_time = std::max(it->end_time(), end_time);
         }
     }
-    m_groups.push_back(bookmarks.cend());
+    m_groups.emplace_back(begin, bookmarks.cend(), end_time);
 
     auto t2 = std::chrono::steady_clock::now();
 
