@@ -34,8 +34,8 @@ protected:
 
     void show_group_tooltip(QMouseEvent *event);
 
-    int milliseconds_to_pixels(long ms) const;
-    long pixels_to_milliseconds(int px) const;
+    int msecs_to_pixels(long ms) const;
+    long pixels_to_msecs(int px) const;
 
 private slots:
     void regroup_bookmarks();

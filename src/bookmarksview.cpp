@@ -44,7 +44,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
     static const int label_offset_y = font.height() + TICK_LEN;
 
     for (int i = 0; i < NUM_HOURS; ++i) {
-        int tick_x = milliseconds_to_pixels(i * TICK_INTERVAL);
+        int tick_x = msecs_to_pixels(i * TICK_INTERVAL);
         const auto label = QString("%1h").arg(i);
         int label_offset_x = font.boundingRect(label).width() / 2;
         painter.drawText(tick_x - label_offset_x, label_offset_y, label);
@@ -59,8 +59,8 @@ void BookmarksView::paintEvent(QPaintEvent *)
     m_group_rect_height = font.height();
     QRect rect(0, m_group_rect_y, 0, m_group_rect_height);
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        rect.setLeft(milliseconds_to_pixels(it->start_time()));
-        rect.setRight(milliseconds_to_pixels(it->end_time));
+        rect.setLeft(msecs_to_pixels(it->start_time()));
+        rect.setRight(msecs_to_pixels(it->end_time));
         auto num_bms = it->size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
@@ -89,8 +89,8 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     }
 
     for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
-        auto start = milliseconds_to_pixels(it->start_time());
-        auto end = milliseconds_to_pixels(it->end_time);
+        auto start = msecs_to_pixels(it->start_time());
+        auto end = msecs_to_pixels(it->end_time);
 
         if (pt.x() >= start && pt.x() < end) {
             QString tooltip;
@@ -182,7 +182,7 @@ void BookmarksView::regroup_bookmarks()
     if (bookmarks.empty()) {
         return;
     }
-    const auto max_dist = std::abs(pixels_to_milliseconds(MAX_GROUP_DIST));
+    const auto max_dist = std::abs(pixels_to_msecs(MAX_GROUP_DIST));
     auto future = QtConcurrent::run(
         group_bookmarks, std::ref(bookmarks), max_dist);
     m_watcher.setFuture(future);
@@ -196,13 +196,13 @@ void BookmarksView::update_groups()
 }
 
 
-int BookmarksView::milliseconds_to_pixels(long ms) const
+int BookmarksView::msecs_to_pixels(long ms) const
 {
     return static_cast<int>(ms * m_scale + m_offset);
 }
 
 
-long BookmarksView::pixels_to_milliseconds(int px) const
+long BookmarksView::pixels_to_msecs(int px) const
 {
     return static_cast<long>((px - m_offset) / m_scale);
 }
