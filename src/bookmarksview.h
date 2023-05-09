@@ -10,8 +10,11 @@
 struct BookmarksGroup: public std::span<const Bookmark>
 {
     using BookmarkIt = BookmarksVector::const_iterator;
+
     explicit BookmarksGroup(BookmarkIt begin, BookmarkIt end, long end_time)
         : std::span<const Bookmark>(begin, end), end_time(end_time) {};
+
+    long start_time() const { return begin()->timestamp; }
     long end_time; // group's end time in milliseconds.
 };
 

@@ -54,7 +54,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
     }
 
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        auto start = milliseconds_to_pixels(it->begin()->timestamp);
+        auto start = milliseconds_to_pixels(it->start_time());
         auto end = milliseconds_to_pixels(it->end_time);
         auto num_bms = it->size();
         auto label = num_bms > 1
@@ -85,7 +85,7 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     }
 
     for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
-        auto start = milliseconds_to_pixels(it->begin()->timestamp);
+        auto start = milliseconds_to_pixels(it->start_time());
         auto end = milliseconds_to_pixels(it->end_time);
 
         if (pt.x() >= start && pt.x() < end) {
