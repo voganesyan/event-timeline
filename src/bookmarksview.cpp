@@ -75,7 +75,7 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    const auto pt = event->pos();
+    const auto pt = event->position().toPoint();
     if (pt.y() < m_group_rect_y || pt.y() >= m_group_rect_y + m_group_rect_height) {
         return;
     }
