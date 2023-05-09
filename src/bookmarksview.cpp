@@ -9,8 +9,8 @@ static constexpr int TOOLTIP_MAX_ROWS = 15;
 static constexpr QColor TICK_COLOR(120, 0, 120);
 static constexpr QColor GROUP_COLOR(0, 200, 0, 100);
 static constexpr QColor BOOKMARK_COLOR(0, 0, 200, 100);
-static constexpr int NUM_HOURS = 24;
-static constexpr int TICK_LEN = 20;
+static constexpr int NUM_HOUR_TICKS = 25;
+static constexpr int HOUR_TICK_LEN = 15;
 static constexpr long TICK_INTERVAL = std::chrono::milliseconds(1h).count();
 static constexpr long DEFAULT_SCALE = std::chrono::milliseconds(24h).count();
 static constexpr int MAX_GROUP_DIST = 100;
@@ -41,14 +41,14 @@ void BookmarksView::paintEvent(QPaintEvent *)
     painter.setPen(TICK_COLOR);
 
     static const QFontMetrics font(painter.font());
-    static const int label_offset_y = font.height() + TICK_LEN;
+    static const int label_offset_y = font.height() + HOUR_TICK_LEN;
 
-    for (int i = 0; i < NUM_HOURS; ++i) {
+    for (int i = 0; i < NUM_HOUR_TICKS; ++i) {
         int tick_x = msecs_to_pixels(i * TICK_INTERVAL);
         const auto label = QString("%1h").arg(i);
         int label_offset_x = font.boundingRect(label).width() / 2;
         painter.drawText(tick_x - label_offset_x, label_offset_y, label);
-        painter.drawLine(tick_x, 0, tick_x, TICK_LEN);
+        painter.drawLine(tick_x, 0, tick_x, HOUR_TICK_LEN);
     }
 
     if (m_groups.empty()) {
