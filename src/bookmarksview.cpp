@@ -7,6 +7,12 @@
 using namespace std::chrono_literals;
 
 static constexpr int TOOLTIP_MAX_ROWS = 15;
+static constexpr QColor TICK_COLOR(120, 0, 120);
+static constexpr QColor GROUP_COLOR(0, 200, 0, 100);
+static constexpr QColor BOOKMARK_COLOR(0, 0, 200, 100);
+static constexpr int NUM_HOURS = 24;
+static constexpr int TICK_LEN = 20;
+static constexpr int TICK_INTERVAL = std::chrono::milliseconds(1h).count();
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
@@ -23,28 +29,21 @@ BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
 
 void BookmarksView::paintEvent(QPaintEvent *)
 {
-    static constexpr QColor tick_color(120, 0, 120);
-    static constexpr QColor group_color(0, 200, 0, 100);
-    static constexpr QColor bookmark_color(0, 0, 200, 100);
-    static constexpr int num_hours = 24;
-    static constexpr int tick_len = 20;
-    static constexpr int tick_interval = std::chrono::milliseconds(1h).count();
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(tick_color);
+    painter.setPen(TICK_COLOR);
 
     const QFontMetrics font(painter.font());
-    const int label_offset_y = font.height() + tick_len;
+    const int label_offset_y = font.height() + TICK_LEN;
     m_group_rect_y = label_offset_y + 10;
-    m_group_rect_height = tick_len;
+    m_group_rect_height = TICK_LEN;
 
-    for (int i = 0; i < num_hours; ++i) {
-        int tick_x = milliseconds_to_pixels(i * tick_interval);
+    for (int i = 0; i < NUM_HOURS; ++i) {
+        int tick_x = milliseconds_to_pixels(i * TICK_INTERVAL);
         const auto label = QString("%1h").arg(i);
         int label_offset_x = -font.boundingRect(label).width() / 2;
         painter.drawText(tick_x + label_offset_x, label_offset_y, label);
-        painter.drawLine(tick_x, 0, tick_x, tick_len);
+        painter.drawLine(tick_x, 0, tick_x, TICK_LEN);
     }
 
     if (m_groups.empty()) {
@@ -59,7 +58,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
             ? QString::number(num_bms)
             : QString::fromStdString(it->begin()->name);
         const QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
-        const auto &color = num_bms > 1 ? group_color : bookmark_color;
+        const auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
         painter.drawRoundedRect(rect, 4, 4);
