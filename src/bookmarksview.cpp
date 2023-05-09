@@ -33,20 +33,17 @@ void BookmarksView::paintEvent(QPaintEvent *)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(tick_color);
 
-    painter.save();
     const QFontMetrics font(painter.font());
-    const int y_offset = font.height() + tick_len;
-    m_group_rect_y = y_offset + 10;
+    const int label_offset_y = font.height() + tick_len;
+    m_group_rect_y = label_offset_y + 10;
     m_group_rect_height = tick_len;
-
-    for (int i = 0; i < num_hours; ++i) {
+    int tick_offset = 0;
+    for (int i = 0; i < num_hours; ++i, tick_offset += hour_step) {
         const auto label = QString("%1h").arg(i);
-        int x_offset = -font.boundingRect(label).width() / 2;
-        painter.drawText(x_offset, y_offset, label);
-        painter.drawLine(0, 0, 0, tick_len);
-        painter.translate(hour_step, 0);
+        int label_offset_x = -font.boundingRect(label).width() / 2;
+        painter.drawText(tick_offset + label_offset_x, label_offset_y, label);
+        painter.drawLine(tick_offset, 0, tick_offset, tick_len);
     }
-    painter.restore();
 
     if (m_groups.empty()) {
         return;
