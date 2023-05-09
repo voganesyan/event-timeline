@@ -42,14 +42,12 @@ void BookmarksView::paintEvent(QPaintEvent *)
 
     static const QFontMetrics font(painter.font());
     static const int label_offset_y = font.height() + TICK_LEN;
-    m_group_rect_y = label_offset_y + 10;
-    m_group_rect_height = font.height();
 
     for (int i = 0; i < NUM_HOURS; ++i) {
         int tick_x = milliseconds_to_pixels(i * TICK_INTERVAL);
         const auto label = QString("%1h").arg(i);
-        int label_offset_x = -font.boundingRect(label).width() / 2;
-        painter.drawText(tick_x + label_offset_x, label_offset_y, label);
+        int label_offset_x = font.boundingRect(label).width() / 2;
+        painter.drawText(tick_x - label_offset_x, label_offset_y, label);
         painter.drawLine(tick_x, 0, tick_x, TICK_LEN);
     }
 
@@ -57,6 +55,8 @@ void BookmarksView::paintEvent(QPaintEvent *)
         return;
     }
 
+    m_group_rect_y = label_offset_y + 10;
+    m_group_rect_height = font.height();
     QRect rect(0, m_group_rect_y, 0, m_group_rect_height);
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
         rect.setLeft(milliseconds_to_pixels(it->start_time()));
