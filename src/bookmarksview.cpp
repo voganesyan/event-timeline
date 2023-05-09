@@ -134,7 +134,13 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
 
 void BookmarksView::resizeEvent(QResizeEvent *event)
 {
-    m_scale = static_cast<float>(width()) / std::chrono::milliseconds(24h).count();
+    if (m_scale < 0) {
+        m_scale = static_cast<float>(width()) / std::chrono::milliseconds(24h).count();
+    } else {
+        qreal factor = static_cast<float>(width()) / event->oldSize().width();
+        m_scale *= factor;
+        m_offset *= factor;
+    }
     m_resize_timer.start(500);
     QWidget::resizeEvent(event);
 }
