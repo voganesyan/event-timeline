@@ -45,9 +45,8 @@ private:
 
     const BookmarksModel *m_model;
     QVector<BookmarksGroup> m_groups;
-    QTimer m_resize_timer;
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
-
+    QTimer m_regroup_timer;
     QPoint m_cursor;
 
     int m_group_rect_y = 0;

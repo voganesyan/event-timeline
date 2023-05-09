@@ -16,15 +16,17 @@ static constexpr long DEFAULT_SCALE = std::chrono::milliseconds(24h).count();
 static constexpr int MAX_GROUP_DIST = 100;
 static constexpr int RECT_RADIUS = 4;
 static constexpr qreal SCALE_FACTOR = 1.1;
+static constexpr int REGROUP_TIMER_INTERVAL = 500;
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     : m_model(model), QWidget(parent)
 {
-    m_resize_timer.setSingleShot(true);
+    m_regroup_timer.setSingleShot(true);
+    m_regroup_timer.setInterval(REGROUP_TIMER_INTERVAL);
     connect(model, &BookmarksModel::bookmarks_changed,
             this, &BookmarksView::regroup_bookmarks);
-    connect(&m_resize_timer, &QTimer::timeout,
+    connect(&m_regroup_timer, &QTimer::timeout,
             this, &BookmarksView::regroup_bookmarks);
     connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
             this, &BookmarksView::update_groups);
@@ -38,8 +40,8 @@ void BookmarksView::paintEvent(QPaintEvent *)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(TICK_COLOR);
 
-    const QFontMetrics font(painter.font());
-    const int label_offset_y = font.height() + TICK_LEN;
+    static const QFontMetrics font(painter.font());
+    static const int label_offset_y = font.height() + TICK_LEN;
     m_group_rect_y = label_offset_y + 10;
     m_group_rect_height = font.height();
 
@@ -55,14 +57,14 @@ void BookmarksView::paintEvent(QPaintEvent *)
         return;
     }
 
+    QRect rect(0, m_group_rect_y, 0, m_group_rect_height);
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        auto start = milliseconds_to_pixels(it->start_time());
-        auto end = milliseconds_to_pixels(it->end_time);
+        rect.setLeft(milliseconds_to_pixels(it->start_time()));
+        rect.setRight(milliseconds_to_pixels(it->end_time));
         auto num_bms = it->size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
             : QString::fromStdString(it->begin()->name);
-        QRect rect(start, m_group_rect_y, end - start, m_group_rect_height);
         auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
@@ -132,6 +134,7 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
     qreal factor = angle > 0 ? SCALE_FACTOR : (1 / SCALE_FACTOR);
     m_scale *= factor;
     m_offset = anchor - factor * (anchor - m_offset);
+    m_regroup_timer.start();
     update();
     event->accept();
 }
@@ -147,12 +150,13 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
         m_scale *= factor;
         m_offset *= factor;
     }
-    m_resize_timer.start(500);
+    m_regroup_timer.start();
     QWidget::resizeEvent(event);
 }
 
 
-static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks, int max_dist)
+static QVector<BookmarksGroup> group_bookmarks(
+    const BookmarksVector &bookmarks, int max_dist)
 {
     QVector<BookmarksGroup> groups;
     auto begin = bookmarks.cbegin();
@@ -174,7 +178,6 @@ static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks,
 void BookmarksView::regroup_bookmarks()
 {
     m_groups.clear();
-
     const auto &bookmarks = m_model->bookmarks();
     if (bookmarks.empty()) {
         return;
