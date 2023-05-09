@@ -13,6 +13,7 @@ static constexpr QColor BOOKMARK_COLOR(0, 0, 200, 100);
 static constexpr int NUM_HOURS = 24;
 static constexpr int TICK_LEN = 20;
 static constexpr int TICK_INTERVAL = std::chrono::milliseconds(1h).count();
+static constexpr int MAX_GROUP_DIST = 100;
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
@@ -172,7 +173,7 @@ void BookmarksView::regroup_bookmarks()
     if (bookmarks.empty()) {
         return;
     }
-    const auto max_dist = pixels_to_milliseconds(100);
+    const auto max_dist = pixels_to_milliseconds(MAX_GROUP_DIST);
     auto future = QtConcurrent::run(group_bookmarks, std::ref(bookmarks), max_dist);
     m_watcher.setFuture(future);
 }
