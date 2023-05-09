@@ -14,6 +14,8 @@ static constexpr int NUM_HOURS = 24;
 static constexpr int TICK_LEN = 20;
 static constexpr int TICK_INTERVAL = std::chrono::milliseconds(1h).count();
 static constexpr int MAX_GROUP_DIST = 100;
+static constexpr int RECT_RADIUS = 4;
+static constexpr qreal SCALE_FACTOR = 1.1;
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
@@ -52,19 +54,19 @@ void BookmarksView::paintEvent(QPaintEvent *)
     }
 
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        auto start_px = milliseconds_to_pixels(it->begin()->timestamp);
-        auto end_px = milliseconds_to_pixels(it->end_time);
+        auto start = milliseconds_to_pixels(it->begin()->timestamp);
+        auto end = milliseconds_to_pixels(it->end_time);
         auto num_bms = it->size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
             : QString::fromStdString(it->begin()->name);
-        const QRect rect(start_px, m_group_rect_y, end_px - start_px, m_group_rect_height);
+        const QRect rect(start, m_group_rect_y, end - start, m_group_rect_height);
         const auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
-        painter.drawRoundedRect(rect, 4, 4);
+        painter.drawRoundedRect(rect, RECT_RADIUS, RECT_RADIUS);
         painter.setPen(color.darker());
-        painter.drawRoundedRect(rect, 4, 4);
+        painter.drawRoundedRect(rect, RECT_RADIUS, RECT_RADIUS);
         painter.setPen(Qt::white);
         painter.drawText(rect, label);
     }
@@ -83,10 +85,10 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     }
 
     for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
-        auto start_px = milliseconds_to_pixels(it->begin()->timestamp);
-        auto end_px = milliseconds_to_pixels(it->end_time);
+        auto start = milliseconds_to_pixels(it->begin()->timestamp);
+        auto end = milliseconds_to_pixels(it->end_time);
 
-        if (pt.x() >= start_px && pt.x() < end_px) {
+        if (pt.x() >= start && pt.x() < end) {
             QString tooltip;
             int num_bms = it->size();
             const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
@@ -124,7 +126,7 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
 {
     int angle = event->angleDelta().y();
     int anchor = event->position().x();
-    qreal factor = angle > 0 ? 1.1 : (1 / 1.1);
+    qreal factor = angle > 0 ? SCALE_FACTOR : (1 / SCALE_FACTOR);
     m_scale *= factor;
     m_offset = anchor - factor * (anchor - m_offset);
     update();
