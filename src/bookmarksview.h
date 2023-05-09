@@ -6,7 +6,7 @@
 #include <span>
 
 
-// A bookmarks group is a subrange(span) of the original container
+// A bookmarks group is a subrange(span) of the original bookmarks container
 struct BookmarksGroup: public std::span<const Bookmark>
 {
     using BookmarkIt = BookmarksVector::const_iterator;
@@ -26,9 +26,6 @@ class BookmarksView : public QWidget
 public:
     explicit BookmarksView(const BookmarksModel *model, QWidget *parent = nullptr);
 
-public slots:
-    void regroup_bookmarks();
-
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -39,6 +36,9 @@ protected:
 
     int milliseconds_to_pixels(long ms) const;
     long pixels_to_milliseconds(int px) const;
+
+private slots:
+    void regroup_bookmarks();
 
 private:
     void update_groups();

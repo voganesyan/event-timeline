@@ -3,7 +3,6 @@
 #include <ranges>
 #include <chrono>
 #include <QtConcurrent>
-#include <QDebug>
 
 using namespace std::chrono_literals;
 static constexpr long BOOKMARK_MAX_TIMESTAMP = std::chrono::milliseconds(24h).count();
@@ -22,29 +21,17 @@ static BookmarksVector generate_bookmarks(int amount)
 {
     BookmarksVector bookmarks;
     bookmarks.reserve(amount);
-
-    auto t1 = std::chrono::steady_clock::now();
-
     for (int i = 0; i < amount; i++) {
         long timestamp = rand(BOOKMARK_MAX_TIMESTAMP);
         long duration = rand(BOOKMARK_MAX_DURATION);
         bookmarks.emplace_back(i, timestamp, duration);
     }
-
-    auto t2 = std::chrono::steady_clock::now();
-
     std::ranges::sort(
         bookmarks,
         [] (const Bookmark &a, const Bookmark &b) {
             return a.timestamp < b.timestamp;
         }
     );
-
-    auto t3 = std::chrono::steady_clock::now();
-
-    qDebug() << "A" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    qDebug() << "B" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
-
     return bookmarks;
 }
 

@@ -2,7 +2,6 @@
 #include <QPainter>
 #include <QToolTip>
 #include <QtConcurrent>
-#include <QDebug>
 
 using namespace std::chrono_literals;
 
@@ -12,7 +11,8 @@ static constexpr QColor GROUP_COLOR(0, 200, 0, 100);
 static constexpr QColor BOOKMARK_COLOR(0, 0, 200, 100);
 static constexpr int NUM_HOURS = 24;
 static constexpr int TICK_LEN = 20;
-static constexpr int TICK_INTERVAL = std::chrono::milliseconds(1h).count();
+static constexpr long TICK_INTERVAL = std::chrono::milliseconds(1h).count();
+static constexpr long DEFAULT_SCALE = std::chrono::milliseconds(24h).count();
 static constexpr int MAX_GROUP_DIST = 100;
 static constexpr int RECT_RADIUS = 4;
 static constexpr qreal SCALE_FACTOR = 1.1;
@@ -22,8 +22,10 @@ BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     : m_model(model), QWidget(parent)
 {
     m_resize_timer.setSingleShot(true);
-    connect(model, &BookmarksModel::bookmarks_changed, this, &BookmarksView::regroup_bookmarks);
-    connect(&m_resize_timer, &QTimer::timeout, this, &BookmarksView::regroup_bookmarks);
+    connect(model, &BookmarksModel::bookmarks_changed,
+            this, &BookmarksView::regroup_bookmarks);
+    connect(&m_resize_timer, &QTimer::timeout,
+            this, &BookmarksView::regroup_bookmarks);
     connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
             this, &BookmarksView::update_groups);
     setMouseTracking(true);
@@ -39,7 +41,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
     const QFontMetrics font(painter.font());
     const int label_offset_y = font.height() + TICK_LEN;
     m_group_rect_y = label_offset_y + 10;
-    m_group_rect_height = TICK_LEN;
+    m_group_rect_height = font.height();
 
     for (int i = 0; i < NUM_HOURS; ++i) {
         int tick_x = milliseconds_to_pixels(i * TICK_INTERVAL);
@@ -60,8 +62,8 @@ void BookmarksView::paintEvent(QPaintEvent *)
         auto label = num_bms > 1
             ? QString::number(num_bms)
             : QString::fromStdString(it->begin()->name);
-        const QRect rect(start, m_group_rect_y, end - start, m_group_rect_height);
-        const auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
+        QRect rect(start, m_group_rect_y, end - start, m_group_rect_height);
+        auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
         painter.drawRoundedRect(rect, RECT_RADIUS, RECT_RADIUS);
@@ -92,7 +94,8 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
             QString tooltip;
             int num_bms = it->size();
             const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
-                ? (it->begin() + TOOLTIP_MAX_ROWS) : --it->end();
+                ? it->begin() + TOOLTIP_MAX_ROWS
+                : --it->end();
             for (auto bm = it->begin(); bm != last_to_display; ++bm) {
                 tooltip += QString::fromStdString(bm->name) + '\n';
             }
@@ -136,10 +139,11 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
 
 void BookmarksView::resizeEvent(QResizeEvent *event)
 {
+    auto new_width = static_cast<float>(event->size().width());
     if (m_scale < 0) {
-        m_scale = static_cast<float>(width()) / std::chrono::milliseconds(24h).count();
+        m_scale = new_width / DEFAULT_SCALE;
     } else {
-        qreal factor = static_cast<float>(width()) / event->oldSize().width();
+        qreal factor = new_width / event->oldSize().width();
         m_scale *= factor;
         m_offset *= factor;
     }
@@ -150,8 +154,6 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 
 static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks, int max_dist)
 {
-    auto t1 = std::chrono::steady_clock::now();
-
     QVector<BookmarksGroup> groups;
     auto begin = bookmarks.cbegin();
     auto end_time = begin->end_time();
@@ -165,10 +167,6 @@ static QVector<BookmarksGroup> group_bookmarks(const BookmarksVector &bookmarks,
         }
     }
     groups.emplace_back(begin, bookmarks.cend(), end_time);
-
-    auto t2 = std::chrono::steady_clock::now();
-    qDebug() << "G" << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-
     return groups;
 }
 
@@ -182,7 +180,8 @@ void BookmarksView::regroup_bookmarks()
         return;
     }
     const auto max_dist = pixels_to_milliseconds(MAX_GROUP_DIST);
-    auto future = QtConcurrent::run(group_bookmarks, std::ref(bookmarks), max_dist);
+    auto future = QtConcurrent::run(
+        group_bookmarks, std::ref(bookmarks), max_dist);
     m_watcher.setFuture(future);
 }
 
@@ -202,5 +201,5 @@ int BookmarksView::milliseconds_to_pixels(long ms) const
 
 long BookmarksView::pixels_to_milliseconds(int px) const
 {
-    return (px - m_offset) / m_scale;
+    return static_cast<long>((px - m_offset) / m_scale);
 }

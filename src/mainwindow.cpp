@@ -10,7 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_model = new BookmarksModel(this);
     auto view = new BookmarksView(m_model);
     auto generate_button = new QPushButton("Generate Bookmarks");
-    connect(generate_button, &QPushButton::clicked, this, &MainWindow::on_generate_button_clicked);
+    connect(generate_button, &QPushButton::clicked,
+            this, &MainWindow::on_generate_button_clicked);
 
     auto button_layout = new QHBoxLayout();
     button_layout->addStretch();
@@ -30,7 +31,8 @@ void MainWindow::on_generate_button_clicked()
 {
     bool ok;
     int num = QInputDialog::getInt(
-        this, "Generate Bookmarks", "Number of Bookmarks:", 50000000, 0, 100000000, 1, &ok);
+        this, "Generate Bookmarks", "Number of Bookmarks:",
+        50000000, 0, 100000000, 1, &ok);
     if (ok) {
         m_model->regenerate_bookmarks(num);
     }
