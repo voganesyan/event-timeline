@@ -110,12 +110,12 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 {
     auto pt = event->position().toPoint();
     if(event->buttons() & Qt::RightButton) {
-        m_offset += (pt - cursor).x();
+        m_offset += (pt - m_cursor).x();
         update();
     } else {
         show_group_tooltip(event);
     }
-    cursor = pt;
+    m_cursor = pt;
     QWidget::mouseMoveEvent(event);
 }
 

@@ -45,7 +45,7 @@ private:
     QTimer m_resize_timer;
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
 
-    QPoint cursor;
+    QPoint m_cursor;
 
     int m_group_rect_y = 0;
     int m_group_rect_height = 0;
