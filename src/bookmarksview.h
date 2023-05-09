@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <span>
 
+
 // A bookmarks group is a subrange(span) of the original container
 struct BookmarksGroup: public std::span<const Bookmark>
 {
@@ -29,6 +30,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
     int milliseconds_to_pixels(long ms) const;
     long pixels_to_milliseconds(int px) const;
@@ -43,4 +45,7 @@ private:
 
     int m_group_rect_y = 0;
     int m_group_rect_height = 0;
+
+    float m_scale = -1.f;
+    float m_offset = 0.f;
 };

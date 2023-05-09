@@ -4,6 +4,8 @@
 #include <QtConcurrent>
 #include <QDebug>
 
+using namespace std::chrono_literals;
+
 static constexpr int TOOLTIP_MAX_ROWS = 15;
 
 
@@ -26,8 +28,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
     static constexpr QColor bookmark_color(0, 0, 200, 100);
     static constexpr int num_hours = 24;
     static constexpr int tick_len = 20;
-    const int win_width = width();
-    const int hour_step = win_width / num_hours;
+    static constexpr int tick_interval = std::chrono::milliseconds(1h).count();
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -37,12 +38,13 @@ void BookmarksView::paintEvent(QPaintEvent *)
     const int label_offset_y = font.height() + tick_len;
     m_group_rect_y = label_offset_y + 10;
     m_group_rect_height = tick_len;
-    int tick_offset = 0;
-    for (int i = 0; i < num_hours; ++i, tick_offset += hour_step) {
+
+    for (int i = 0; i < num_hours; ++i) {
+        int tick_x = milliseconds_to_pixels(i * tick_interval);
         const auto label = QString("%1h").arg(i);
         int label_offset_x = -font.boundingRect(label).width() / 2;
-        painter.drawText(tick_offset + label_offset_x, label_offset_y, label);
-        painter.drawLine(tick_offset, 0, tick_offset, tick_len);
+        painter.drawText(tick_x + label_offset_x, label_offset_y, label);
+        painter.drawLine(tick_x, 0, tick_x, tick_len);
     }
 
     if (m_groups.empty()) {
@@ -105,8 +107,21 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 }
 
 
+void BookmarksView::wheelEvent(QWheelEvent *event)
+{
+    int angle = event->angleDelta().y();
+    int anchor = event->position().x();
+    qreal factor = angle > 0 ? 1.1 : (1 / 1.1);
+    m_scale *= factor;
+    m_offset = anchor - factor * (anchor - m_offset);
+    update();
+    event->accept();
+}
+
+
 void BookmarksView::resizeEvent(QResizeEvent *event)
 {
+    m_scale = static_cast<float>(width()) / std::chrono::milliseconds(24h).count();
     m_resize_timer.start(500);
     QWidget::resizeEvent(event);
 }
@@ -160,15 +175,11 @@ void BookmarksView::update_groups()
 
 int BookmarksView::milliseconds_to_pixels(long ms) const
 {
-    using namespace std::chrono_literals;
-    long max_timestamp = std::chrono::milliseconds(24h).count();
-    return static_cast<int>(ms * width() / max_timestamp);
+    return static_cast<int>(ms * m_scale + m_offset);
 }
 
 
 long BookmarksView::pixels_to_milliseconds(int px) const
 {
-    using namespace std::chrono_literals;
-    long max_timestamp = std::chrono::milliseconds(24h).count();
-    return px * max_timestamp / width();
+    return (px - m_offset) / m_scale;
 }
