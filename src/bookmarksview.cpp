@@ -182,7 +182,7 @@ void BookmarksView::regroup_bookmarks()
     if (bookmarks.empty()) {
         return;
     }
-    const auto max_dist = pixels_to_milliseconds(MAX_GROUP_DIST);
+    const auto max_dist = std::abs(pixels_to_milliseconds(MAX_GROUP_DIST));
     auto future = QtConcurrent::run(
         group_bookmarks, std::ref(bookmarks), max_dist);
     m_watcher.setFuture(future);
