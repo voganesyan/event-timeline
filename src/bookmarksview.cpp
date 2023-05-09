@@ -71,7 +71,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
 }
 
 
-void BookmarksView::mouseMoveEvent(QMouseEvent *event)
+void BookmarksView::show_group_tooltip(QMouseEvent *event)
 {
     if (m_groups.empty()) {
         return;
@@ -103,6 +103,19 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
             break;
         }
     }
+}
+
+
+void BookmarksView::mouseMoveEvent(QMouseEvent *event)
+{
+    auto pt = event->position().toPoint();
+    if(event->buttons() & Qt::RightButton) {
+        m_offset += (pt - cursor).x();
+        update();
+    } else {
+        show_group_tooltip(event);
+    }
+    cursor = pt;
     QWidget::mouseMoveEvent(event);
 }
 

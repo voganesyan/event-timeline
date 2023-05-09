@@ -32,6 +32,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
+    void show_group_tooltip(QMouseEvent *event);
+
     int milliseconds_to_pixels(long ms) const;
     long pixels_to_milliseconds(int px) const;
 
@@ -42,6 +44,8 @@ private:
     QVector<BookmarksGroup> m_groups;
     QTimer m_resize_timer;
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
+
+    QPoint cursor;
 
     int m_group_rect_y = 0;
     int m_group_rect_height = 0;
