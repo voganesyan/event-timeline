@@ -146,11 +146,13 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
 
 void BookmarksView::resizeEvent(QResizeEvent *event)
 {
+    auto old_width = event->oldSize().width();
     auto new_width = static_cast<float>(event->size().width());
-    if (m_transform.scale < 0) {
+    if (old_width < 0) {
+        // The first event - set default scale
         m_transform.scale = new_width / DEFAULT_SCALE;
     } else {
-        qreal factor = new_width / event->oldSize().width();
+        qreal factor = new_width / old_width;
         m_transform.scale *= factor;
         m_transform.offset *= factor;
     }
