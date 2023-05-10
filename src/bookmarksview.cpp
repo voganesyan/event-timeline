@@ -51,20 +51,18 @@ void BookmarksView::paintEvent(QPaintEvent *)
         painter.drawLine(tick_x, 0, tick_x, HOUR_TICK_LEN);
     }
 
-    if (m_groups.empty()) {
-        return;
-    }
-
     m_groups_lane.y = label_offset_y + 10;
     m_groups_lane.height = font.height();
     QRect rect(0, m_groups_lane.y, 0, m_groups_lane.height);
-    for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        rect.setLeft(msecs_to_pixels(it->start_time()));
-        rect.setRight(msecs_to_pixels(it->end_time));
-        auto num_bms = it->size();
+
+    const auto visible_groups = get_visible_groups();
+    for (const auto &group : visible_groups) {
+        rect.setLeft(msecs_to_pixels(group.start_time()));
+        rect.setRight(msecs_to_pixels(group.end_time));
+        auto num_bms = group.size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
-            : QString::fromStdString(it->begin()->name);
+            : QString::fromStdString(group.begin()->name);
         auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
@@ -77,12 +75,25 @@ void BookmarksView::paintEvent(QPaintEvent *)
 }
 
 
+std::span<const BookmarksGroup> BookmarksView::get_visible_groups() const
+{
+    long left_time = pixels_to_msecs(0);
+    auto begin = std::ranges::find_if(
+        m_groups,
+        [left_time] (const auto &g) { return g.end_time >= left_time; }
+    );
+    long right_time = pixels_to_msecs(width());
+    auto end = std::ranges::find_if(
+        begin,
+        m_groups.cend(),
+        [right_time] (const auto &g) { return g.start_time() > right_time; }
+    );
+    return {begin, end};
+}
+
+
 void BookmarksView::show_group_tooltip(QMouseEvent *event)
 {
-    if (m_groups.empty()) {
-        return;
-    }
-
     const auto pt = event->position().toPoint();
     if (!m_groups_lane.covers(pt.y())) {
         return;
@@ -92,7 +103,8 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     // because we want to show tooltip only on visible part of a group
     // (a later group can partially overlap an earlier group
     // since they are drawn in direct order).
-    for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
+    const auto visible_groups = get_visible_groups();
+    for (auto it = visible_groups.rbegin(); it != visible_groups.rend(); ++it) {
         auto start = msecs_to_pixels(it->start_time());
         auto end = msecs_to_pixels(it->end_time);
 
