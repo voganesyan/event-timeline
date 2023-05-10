@@ -2,7 +2,6 @@
 #include <QMainWindow>
 
 class BookmarksModel;
-class BookmarksView;
 
 class MainWindow : public QMainWindow
 {
