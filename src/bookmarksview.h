@@ -53,8 +53,17 @@ private:
     QTimer m_regroup_timer;
     QPoint m_cursor;
 
-    int m_group_lane_y = 0;
-    int m_group_lane_height = 0;
+    struct ItemsLane {
+        int y = 0;
+        int height = 0;
+
+        bool covers(int p) const
+        {
+            return p >= y && p < y + height;
+        }
+    };
+
+    ItemsLane m_groups_lane;
 
     float m_scale = -1.f;
     float m_offset = 0.f;
