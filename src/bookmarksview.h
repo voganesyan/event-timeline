@@ -63,8 +63,12 @@ private:
         }
     };
 
-    ItemsLane m_groups_lane;
+    struct Transform {
+        float scale = -1.f;
+        float offset = 0.f;
+    };
 
-    float m_scale = -1.f;
-    float m_offset = 0.f;
+    ItemsLane m_groups_lane;
+    Transform m_transform;
+
 };

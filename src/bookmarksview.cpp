@@ -117,7 +117,7 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 {
     auto pt = event->position().toPoint();
     if(event->buttons() & Qt::RightButton) {
-        m_offset += (pt - m_cursor).x();
+        m_transform.offset += (pt - m_cursor).x();
         update();
     } else {
         show_group_tooltip(event);
@@ -132,8 +132,8 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
     int angle = event->angleDelta().y();
     int anchor = event->position().x();
     qreal factor = angle > 0 ? SCALE_FACTOR : (1 / SCALE_FACTOR);
-    m_scale *= factor;
-    m_offset = anchor - factor * (anchor - m_offset);
+    m_transform.scale *= factor;
+    m_transform.offset = anchor - factor * (anchor - m_transform.offset);
     m_regroup_timer.start();
     update();
     event->accept();
@@ -143,12 +143,12 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
 void BookmarksView::resizeEvent(QResizeEvent *event)
 {
     auto new_width = static_cast<float>(event->size().width());
-    if (m_scale < 0) {
-        m_scale = new_width / DEFAULT_SCALE;
+    if (m_transform.scale < 0) {
+        m_transform.scale = new_width / DEFAULT_SCALE;
     } else {
         qreal factor = new_width / event->oldSize().width();
-        m_scale *= factor;
-        m_offset *= factor;
+        m_transform.scale *= factor;
+        m_transform.offset *= factor;
     }
     m_regroup_timer.start();
     QWidget::resizeEvent(event);
@@ -198,11 +198,11 @@ void BookmarksView::on_grouping_bookmarks_finished()
 
 int BookmarksView::msecs_to_pixels(long ms) const
 {
-    return static_cast<int>(ms * m_scale + m_offset);
+    return static_cast<int>(ms * m_transform.scale + m_transform.offset);
 }
 
 
 long BookmarksView::pixels_to_msecs(int px) const
 {
-    return static_cast<long>((px - m_offset) / m_scale);
+    return static_cast<long>((px - m_transform.offset) / m_transform.scale);
 }
