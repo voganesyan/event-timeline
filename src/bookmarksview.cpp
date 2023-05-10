@@ -88,6 +88,10 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
         return;
     }
 
+    // Iterate groups in reverse order
+    // because we want to show tooltip only on visible part of a group
+    // (a later group can partially overlap an earlier group
+    // since they are drawn in direct order).
     for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
         auto start = msecs_to_pixels(it->start_time());
         auto end = msecs_to_pixels(it->end_time);
