@@ -55,9 +55,9 @@ void BookmarksView::paintEvent(QPaintEvent *)
         return;
     }
 
-    m_group_rect_y = label_offset_y + 10;
-    m_group_rect_height = font.height();
-    QRect rect(0, m_group_rect_y, 0, m_group_rect_height);
+    m_group_lane_y = label_offset_y + 10;
+    m_group_lane_height = font.height();
+    QRect rect(0, m_group_lane_y, 0, m_group_lane_height);
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
         rect.setLeft(msecs_to_pixels(it->start_time()));
         rect.setRight(msecs_to_pixels(it->end_time));
@@ -84,7 +84,7 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     }
 
     const auto pt = event->position().toPoint();
-    if (pt.y() < m_group_rect_y || pt.y() >= m_group_rect_y + m_group_rect_height) {
+    if (pt.y() < m_group_lane_y || pt.y() >= m_group_lane_y + m_group_lane_height) {
         return;
     }
 
