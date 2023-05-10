@@ -34,6 +34,6 @@ void MainWindow::on_generate_button_clicked()
         this, "Generate Bookmarks", "Number of Bookmarks:",
         50000000, 0, 100000000, 1, &ok);
     if (ok) {
-        m_model->regenerate_bookmarks(num);
+        m_model->start_generating_bookmarks(num);
     }
 }

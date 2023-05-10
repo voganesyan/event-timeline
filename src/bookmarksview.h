@@ -12,9 +12,14 @@ struct BookmarksGroup: public std::span<const Bookmark>
     using BookmarkIt = BookmarksVector::const_iterator;
 
     explicit BookmarksGroup(BookmarkIt begin, BookmarkIt end, long end_time)
-        : std::span<const Bookmark>(begin, end), end_time(end_time) {};
+        : std::span<const Bookmark>(begin, end),
+          end_time(end_time) {};
 
-    long start_time() const { return begin()->timestamp; }
+    long start_time() const
+    {
+        return begin()->timestamp;
+    }
+
     long end_time; // group's end time in milliseconds.
 };
 
@@ -38,11 +43,10 @@ protected:
     long pixels_to_msecs(int px) const;
 
 private slots:
-    void regroup_bookmarks();
+    void start_grouping_bookmarks();
+    void on_grouping_bookmarks_finished();
 
 private:
-    void update_groups();
-
     const BookmarksModel *m_model;
     QVector<BookmarksGroup> m_groups;
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;

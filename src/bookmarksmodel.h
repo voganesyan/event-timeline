@@ -11,15 +11,16 @@ class BookmarksModel: public QObject
 
 public:
     explicit BookmarksModel(QObject *parent = nullptr);
-    void regenerate_bookmarks(int amount);
+    void start_generating_bookmarks(int amount);
     const BookmarksVector& bookmarks() const;
 
 signals:
     void bookmarks_changed();
 
-private:
-    void update_bookmarks();
+private slots:
+    void on_generating_bookmarks_finished();
 
+private:
     BookmarksVector m_bookmarks;
     QFutureWatcher<BookmarksVector> m_watcher;
 };

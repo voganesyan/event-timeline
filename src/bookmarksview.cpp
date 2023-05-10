@@ -16,20 +16,20 @@ static constexpr long DEFAULT_SCALE = std::chrono::milliseconds(24h).count();
 static constexpr int MAX_GROUP_DIST = 100;
 static constexpr int RECT_RADIUS = 4;
 static constexpr qreal SCALE_FACTOR = 1.1;
-static constexpr int REGROUP_TIMER_INTERVAL = 500;
+static constexpr int REGROUP_DELAY = 500;
 
 
 BookmarksView::BookmarksView(const BookmarksModel *model, QWidget *parent)
     : m_model(model), QWidget(parent)
 {
     m_regroup_timer.setSingleShot(true);
-    m_regroup_timer.setInterval(REGROUP_TIMER_INTERVAL);
+    m_regroup_timer.setInterval(REGROUP_DELAY);
     connect(model, &BookmarksModel::bookmarks_changed,
-            this, &BookmarksView::regroup_bookmarks);
+            this, &BookmarksView::start_grouping_bookmarks);
     connect(&m_regroup_timer, &QTimer::timeout,
-            this, &BookmarksView::regroup_bookmarks);
+            this, &BookmarksView::start_grouping_bookmarks);
     connect(&m_watcher, &QFutureWatcher<QVector<BookmarksGroup>>::finished,
-            this, &BookmarksView::update_groups);
+            this, &BookmarksView::on_grouping_bookmarks_finished);
     setMouseTracking(true);
 }
 
@@ -175,7 +175,7 @@ static QVector<BookmarksGroup> group_bookmarks(
 }
 
 
-void BookmarksView::regroup_bookmarks()
+void BookmarksView::start_grouping_bookmarks()
 {
     m_groups.clear();
     const auto &bookmarks = m_model->bookmarks();
@@ -189,7 +189,7 @@ void BookmarksView::regroup_bookmarks()
 }
 
 
-void BookmarksView::update_groups()
+void BookmarksView::on_grouping_bookmarks_finished()
 {
     m_groups = std::move(m_watcher.result());
     update();
