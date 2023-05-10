@@ -6,21 +6,25 @@
 #include <span>
 
 
-// A bookmarks group is a subrange(span) of the original bookmarks container
+// A bookmarks group is basically a subrange(span) of the original bookmarks container
 struct BookmarksGroup: public std::span<const Bookmark>
 {
     using BookmarkIt = BookmarksVector::const_iterator;
 
+    // Group is a pair of start and end iterators
+    // plus end-time that is calculated when grouping
     explicit BookmarksGroup(BookmarkIt begin, BookmarkIt end, long end_time)
         : std::span<const Bookmark>(begin, end),
           end_time(end_time) {}
 
+    // Start time of the first bookmark in the group
     long start_time() const
     {
         return begin()->timestamp;
     }
 
-    long end_time; // group's end time in milliseconds.
+    // End time of the latest (not last) bookmark (pre-calculated) in the group
+    long end_time;
 };
 
 
