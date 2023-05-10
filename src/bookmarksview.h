@@ -47,28 +47,24 @@ private slots:
     void on_grouping_bookmarks_finished();
 
 private:
+    struct ItemsLane
+    {
+        int y;
+        int height;
+        bool covers(int p) const { return p >= y && p < y + height; }
+    };
+
+    struct Transform
+    {
+        float scale;
+        float offset;
+    };
+
     const BookmarksModel *m_model;
     QVector<BookmarksGroup> m_groups;
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
     QTimer m_regroup_timer;
     QPoint m_cursor;
-
-    struct ItemsLane {
-        int y = 0;
-        int height = 0;
-
-        bool covers(int p) const
-        {
-            return p >= y && p < y + height;
-        }
-    };
-
-    struct Transform {
-        float scale = -1.f;
-        float offset = 0.f;
-    };
-
     ItemsLane m_groups_lane;
     Transform m_transform;
-
 };
