@@ -123,6 +123,15 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 }
 
 
+void BookmarksView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::RightButton) {
+        m_regroup_timer.start();
+    }
+    QWidget::mouseReleaseEvent(event);
+}
+
+
 void BookmarksView::wheelEvent(QWheelEvent *event)
 {
     int angle = event->angleDelta().y();
@@ -154,21 +163,37 @@ void BookmarksView::resizeEvent(QResizeEvent *event)
 
 
 static QVector<BookmarksGroup> group_bookmarks(
-    const BookmarksVector &bookmarks, int max_dist)
+    const BookmarksVector &bookmarks,
+    long min_time,
+    long max_time,
+    long max_dist)
 {
-    QVector<BookmarksGroup> groups;
-    auto begin = bookmarks.cbegin();
-    auto end_time = begin->end_time();
-    for (auto it = begin + 1; it != bookmarks.cend(); ++it) {
-        if (it->timestamp - begin->timestamp > max_dist) {
-            groups.emplace_back(begin, it, end_time);
-            begin = it;
-            end_time = it->end_time();
-        } else {
-            end_time = std::max(it->end_time(), end_time);
-        }
+    auto begin = std::ranges::find_if(
+        bookmarks,
+        [min_time] (const Bookmark &bm) { return bm.timestamp >= min_time; }
+    );
+    if (begin == bookmarks.cend()) {
+        return {};
     }
-    groups.emplace_back(begin, bookmarks.cend(), end_time);
+    QVector<BookmarksGroup> groups;
+    auto end_time = begin->end_time();
+    auto next = begin + 1;
+    while (next != bookmarks.cend()) {
+        if (next->timestamp - begin->timestamp > max_dist) {
+            groups.emplace_back(begin, next, end_time);
+            if (next->timestamp >= max_time) {
+                return groups;
+            }
+            begin = next;
+            end_time = next->end_time();
+        } else {
+            end_time = std::max(next->end_time(), end_time);
+        }
+        ++next;
+    }
+    if (begin != bookmarks.cend()) {
+        groups.emplace_back(begin, bookmarks.cend(), end_time);
+    }
     return groups;
 }
 
@@ -180,9 +205,11 @@ void BookmarksView::start_grouping_bookmarks()
     if (bookmarks.empty()) {
         return;
     }
-    const auto max_dist = pixels_to_msecs(MAX_GROUP_DIST) - pixels_to_msecs(0);
+    long min_time = pixels_to_msecs(0);
+    long max_time = pixels_to_msecs(width());
+    long max_dist = pixels_to_msecs(MAX_GROUP_DIST) - min_time;
     auto future = QtConcurrent::run(
-        group_bookmarks, std::ref(bookmarks), max_dist);
+        group_bookmarks, std::ref(bookmarks), min_time, max_time, max_dist);
     m_watcher.setFuture(future);
 }
 
