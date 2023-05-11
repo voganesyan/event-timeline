@@ -51,10 +51,6 @@ void BookmarksView::paintEvent(QPaintEvent *)
         painter.drawLine(tick_x, 0, tick_x, HOUR_TICK_LEN);
     }
 
-    if (m_groups.empty()) {
-        return;
-    }
-
     m_groups_lane.y = label_offset_y + 10;
     m_groups_lane.height = font.height();
     QRect rect(0, m_groups_lane.y, 0, m_groups_lane.height);
@@ -79,10 +75,6 @@ void BookmarksView::paintEvent(QPaintEvent *)
 
 void BookmarksView::show_group_tooltip(QMouseEvent *event)
 {
-    if (m_groups.empty()) {
-        return;
-    }
-
     const auto pt = event->position().toPoint();
     if (!m_groups_lane.covers(pt.y())) {
         return;
