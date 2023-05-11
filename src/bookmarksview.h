@@ -61,8 +61,8 @@ private:
 
     struct Transform
     {
-        float scale;
-        float offset;
+        qreal scale;
+        qreal offset;
     };
 
     const BookmarksModel *m_model;
