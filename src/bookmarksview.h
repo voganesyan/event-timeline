@@ -41,7 +41,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
-    std::span<const BookmarksGroup> get_visible_groups() const;
     void show_group_tooltip(QMouseEvent *event);
 
     int msecs_to_pixels(long ms) const;
