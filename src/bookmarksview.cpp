@@ -114,6 +114,7 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
     auto pt = event->position().toPoint();
     if(event->buttons() & Qt::RightButton) {
         m_transform.offset += (pt - m_cursor).x();
+        m_is_mouse_moved = true;
         update();
     } else {
         show_group_tooltip(event);
@@ -126,7 +127,10 @@ void BookmarksView::mouseMoveEvent(QMouseEvent *event)
 void BookmarksView::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::RightButton) {
-        m_regroup_timer.start();
+        if (m_is_mouse_moved) {
+            m_regroup_timer.start();
+            m_is_mouse_moved = false;
+        }
     }
     QWidget::mouseReleaseEvent(event);
 }

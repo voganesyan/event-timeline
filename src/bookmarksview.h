@@ -70,6 +70,7 @@ private:
     QFutureWatcher<QVector<BookmarksGroup>> m_watcher;
     QTimer m_regroup_timer;
     QPoint m_cursor;
+    bool m_is_mouse_moved = false;
     ItemsLane m_groups_lane;
     Transform m_transform;
 };
