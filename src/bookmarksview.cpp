@@ -52,7 +52,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
     }
 
     m_groups_lane.y = label_offset_y + 10;
-    m_groups_lane.height = font.height();
+    m_groups_lane.height = font.height() + 6;
     QRect rect(0, m_groups_lane.y, 0, m_groups_lane.height);
     for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
         rect.setLeft(msecs_to_pixels(it->start_time()));
@@ -68,7 +68,7 @@ void BookmarksView::paintEvent(QPaintEvent *)
         painter.setPen(color.darker());
         painter.drawRoundedRect(rect, RECT_RADIUS, RECT_RADIUS);
         painter.setPen(Qt::white);
-        painter.drawText(rect, label);
+        painter.drawText(rect, Qt::AlignVCenter, label);
     }
 }
 
