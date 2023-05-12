@@ -89,11 +89,11 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
         auto end = msecs_to_pixels(it->end_time);
 
         if (pt.x() >= start && pt.x() < end) {
-            QString tooltip;
             int num_bms = it->size();
             const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
                 ? it->begin() + TOOLTIP_MAX_ROWS
                 : --it->end();
+            QString tooltip;
             for (auto bm = it->begin(); bm != last_to_display; ++bm) {
                 tooltip += QString::fromStdString(bm->name) + '\n';
             }
