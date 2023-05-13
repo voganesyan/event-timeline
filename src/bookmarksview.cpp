@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QToolTip>
 #include <QtConcurrent>
+#include <ranges>
 
 using namespace std::chrono_literals;
 
@@ -54,13 +55,13 @@ void BookmarksView::paintEvent(QPaintEvent *)
     m_groups_lane.y = label_offset_y + 10;
     m_groups_lane.height = font.height() + 6;
     QRect rect(0, m_groups_lane.y, 0, m_groups_lane.height);
-    for (auto it = m_groups.cbegin(); it != m_groups.cend(); ++it) {
-        rect.setLeft(msecs_to_pixels(it->start_time()));
-        rect.setRight(msecs_to_pixels(it->end_time));
-        auto num_bms = it->size();
+    for (const auto &group : m_groups) {
+        rect.setLeft(msecs_to_pixels(group.start_time()));
+        rect.setRight(msecs_to_pixels(group.end_time));
+        auto num_bms = group.size();
         auto label = num_bms > 1
             ? QString::number(num_bms)
-            : QString::fromStdString(it->begin()->name);
+            : QString::fromStdString(group.begin()->name);
         auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
@@ -84,17 +85,17 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
     // because we want to show tooltip only on visible part of a group
     // (a later group can partially overlap an earlier group
     // since they are drawn in direct order).
-    for (auto it = m_groups.crbegin(); it != m_groups.crend(); ++it) {
-        auto start = msecs_to_pixels(it->start_time());
-        auto end = msecs_to_pixels(it->end_time);
+    for (const auto &group : m_groups | std::views::reverse) {
+        auto start = msecs_to_pixels(group.start_time());
+        auto end = msecs_to_pixels(group.end_time);
 
         if (pt.x() >= start && pt.x() < end) {
-            int num_bms = it->size();
+            int num_bms = group.size();
             const auto last_to_display = (num_bms > TOOLTIP_MAX_ROWS)
-                ? it->begin() + TOOLTIP_MAX_ROWS
-                : --it->end();
+                ? group.begin() + TOOLTIP_MAX_ROWS
+                : --group.end();
             QString tooltip;
-            for (auto bm = it->begin(); bm != last_to_display; ++bm) {
+            for (auto bm = group.begin(); bm != last_to_display; ++bm) {
                 tooltip += QString::fromStdString(bm->name) + '\n';
             }
             tooltip += num_bms > TOOLTIP_MAX_ROWS
