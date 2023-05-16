@@ -142,6 +142,29 @@ void BookmarksView::wheelEvent(QWheelEvent *event)
     int angle = event->angleDelta().y();
     int anchor = event->position().x();
     qreal factor = angle > 0 ? SCALE_FACTOR : (1 / SCALE_FACTOR);
+
+    // We want to zoom at the position of the mouse cursor (anchor),
+    // so that the mouse points to the same timepoint in the timeline.
+    // To find such a transformation, we should calculate the new offset:
+    //
+    // Current transform:
+    //     px = scale * ms + offset
+    //
+    // New transform:
+    //     px = scale' * ms + offset'
+    //
+    // The transformation lines should intersect:
+    //     scale * ms + offset = scale' * ms + offset'
+    // or:
+    //     ofset' = (scale - scale') * ms + offset
+    //
+    // And they should intersect at the cursor position:
+    //     ms = (anchor - offset) / scale
+    //
+    // Substitute the last equation to the previous one:
+    //     offset' = (scale - scale') * (anchor - offset) / scale + offset
+    //     offset' = (anchor - offset) - (scale' / scale) * (anchor - offset) + offset
+    //     offset' = anchor - factor * (anchor - offset)
     m_transform.scale *= factor;
     m_transform.offset = anchor - factor * (anchor - m_transform.offset);
     m_regroup_timer.start();
