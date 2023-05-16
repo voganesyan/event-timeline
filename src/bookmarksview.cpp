@@ -197,8 +197,8 @@ static QVector<BookmarksGroup> group_bookmarks(
     long max_dist)
 {
     auto begin = std::lower_bound(
-        bookmarks.begin(),
-        bookmarks.end(),
+        bookmarks.cbegin(),
+        bookmarks.cend(),
         min_time,
         [] (const Bookmark &bm, long value) { return bm.timestamp < value; }
     );
