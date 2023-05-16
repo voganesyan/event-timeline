@@ -1,12 +1,12 @@
 #pragma once
-#include <string>
+#include <QString>
 
 using namespace std::string_literals;
 
 struct Bookmark
 {
     explicit Bookmark(int id, long timestamp, long duration)
-        : name("Bookmark "s + std::to_string(id)),
+        : name(QString("Bookmark %1").arg(id)),
           timestamp(timestamp),
           duration(duration) {}
 
@@ -15,7 +15,7 @@ struct Bookmark
         return timestamp + duration;
     }
 
-    std::string name;
+    QString name;
     long timestamp;
     long duration;
 };

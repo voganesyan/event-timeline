@@ -73,4 +73,5 @@ private:
     bool m_is_mouse_moved = false;
     ItemsLane m_groups_lane;
     Transform m_transform;
+    std::chrono::steady_clock::time_point start_grouping;
 };

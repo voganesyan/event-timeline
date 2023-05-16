@@ -59,9 +59,9 @@ void BookmarksView::paintEvent(QPaintEvent *)
         rect.setLeft(msecs_to_pixels(group.start_time()));
         rect.setRight(msecs_to_pixels(group.end_time));
         auto num_bms = group.size();
-        auto label = num_bms > 1
+        auto &label = num_bms > 1
             ? QString::number(num_bms)
-            : QString::fromStdString(group.begin()->name);
+            : group.begin()->name;
         auto &color = num_bms > 1 ? GROUP_COLOR : BOOKMARK_COLOR;
         painter.setPen(Qt::NoPen);
         painter.setBrush(color);
@@ -96,11 +96,11 @@ void BookmarksView::show_group_tooltip(QMouseEvent *event)
                 : --group.end();
             QString tooltip;
             for (auto bm = group.begin(); bm != last_to_display; ++bm) {
-                tooltip += QString::fromStdString(bm->name) + '\n';
+                tooltip += bm->name + '\n';
             }
             tooltip += num_bms > TOOLTIP_MAX_ROWS
                 ? QString("+ %1 other bookmarks").arg(num_bms - TOOLTIP_MAX_ROWS)
-                : QString::fromStdString(last_to_display->name);
+                : last_to_display->name;
             QToolTip::showText(
                 event->globalPosition().toPoint(),
                 tooltip, this, rect());
