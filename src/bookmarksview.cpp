@@ -198,7 +198,7 @@ static QVector<BookmarksGroup> group_bookmarks(
 {
     auto begin = std::ranges::find_if(
         bookmarks,
-        [min_time] (const Bookmark &bm) { return bm.timestamp >= min_time; }
+        [min_time] (const Bookmark &bm) { return bm.end_time() >= min_time; }
     );
     if (begin == bookmarks.cend()) {
         return {};
