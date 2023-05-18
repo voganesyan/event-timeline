@@ -56,8 +56,13 @@ void BookmarksView::paintEvent(QPaintEvent *)
     m_groups_lane.height = font.height() + 6;
     QRect rect(0, m_groups_lane.y, 0, m_groups_lane.height);
     for (const auto &group : m_groups) {
-        rect.setLeft(msecs_to_pixels(group.start_time()));
-        rect.setRight(msecs_to_pixels(group.end_time));
+        int right_px = msecs_to_pixels(group.end_time);
+        if (right_px < 0) {
+            continue;
+        }
+        int left_px = msecs_to_pixels(group.start_time());
+        rect.setLeft(left_px);
+        rect.setRight(right_px);
         auto num_bms = group.size();
         auto &label = num_bms > 1
             ? QString::number(num_bms)
